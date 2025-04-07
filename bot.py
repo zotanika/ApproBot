@@ -33,10 +33,10 @@ Run the approval bot
 """
 def do_approve():
     try:
+        driver.get(SHIFTEE_REQUESTS_PAGE)
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "btn-approve"))
         )
-
         approve_buttons = driver.find_elements(By.CLASS_NAME, "btn-approve")
         print(f"{len(approve_buttons)}개의 승인 버튼을 발견했습니다.")
 
@@ -58,7 +58,7 @@ def do_approve():
             except Exception as e:
                 print("개별 승인을 실패했습니다:", e)
     except Exception as e:
-        print("발견된 승인 버튼이 없습니다:", e)
+        print("승인 버튼을 발견하지 못했습니다:", e)
 
 def main():
     while True:
