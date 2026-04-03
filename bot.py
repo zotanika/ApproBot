@@ -76,7 +76,6 @@ def main():
         do_approve()
         print(f"{REFRESH_INTERVAL}초 후에 재확인합니다...\n")
         time.sleep(REFRESH_INTERVAL)
-        driver.refresh()
 
 try:
     main()
