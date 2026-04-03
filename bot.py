@@ -20,6 +20,7 @@ SHIFTEE_REQUESTS_PAGE = "https://shiftee.io/app/your/company/id/manager/requests
 Browser ready
 """
 options = Options()
+options.page_load_strategy = "eager"
 # options.add_argument("--headless")
 # options.add_argument(f"user-data-dir={CHROME_PROFILE_PATH}")
 driver = webdriver.Chrome(options=options)
@@ -34,13 +35,20 @@ Run the approval bot
 def do_approve():
     try:
         driver.get(SHIFTEE_REQUESTS_PAGE)
+    except Exception as e:
+        print(f"페이지 로드 중 오류 발생, 다음 루프에서 재시도합니다: {e}")
+        return
+    time.sleep(10)
+    try:
+        driver.get(SHIFTEE_REQUESTS_PAGE)
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "btn-approve"))
         )
         approve_buttons = driver.find_elements(By.CLASS_NAME, "btn-approve")
         print(f"{len(approve_buttons)}개의 승인 버튼을 발견했습니다.")
 
-        for btn in approve_buttons:
+        while approve_buttons:
+            btn = approve_buttons[0]
             try:
                 driver.execute_script("arguments[0].scrollIntoView(true);", btn)
                 time.sleep(0.2)
@@ -57,8 +65,10 @@ def do_approve():
                 time.sleep(1)
             except Exception as e:
                 print("개별 승인을 실패했습니다:", e)
+            # Re-fetch buttons since DOM changes after each approval
+            approve_buttons = driver.find_elements(By.CLASS_NAME, "btn-approve")
     except Exception as e:
-        print("승인 버튼을 발견하지 못했습니다:", e)
+        print("승인 버튼을 발견하지 못했습니다.")
 
 def main():
     while True:
